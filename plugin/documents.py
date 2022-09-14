@@ -168,7 +168,7 @@ class DocumentSyncListener(sublime_plugin.ViewEventListener, AbstractViewListene
         if syntax:
             self._language_id = basescope2languageid(syntax.scope)  # type: str
         else:
-            debug("view", self.view.id(), "has no syntax")
+            debug("view " + str(self.view.id()) + " has no syntax")
             self._language_id = ""
         self._manager = None  # type: Optional[WindowManager]
         self._session_views = {}  # type: Dict[str, SessionView]
@@ -834,11 +834,11 @@ class DocumentSyncListener(sublime_plugin.ViewEventListener, AbstractViewListene
     def _register_async(self) -> None:
         buf = self.view.buffer()
         if not buf:
-            debug("not tracking bufferless view", self.view.id())
+            debug("not tracking bufferless view " + str(self.view.id()))
             return
         text_change_listener = TextChangeListener.ids_to_listeners.get(buf.buffer_id)
         if not text_change_listener:
-            debug("couldn't find a text change listener for", self)
+            debug("couldn't find a text change listener for" + str(self))
             return
         self._registered = True
         if not self._manager:
@@ -849,7 +849,7 @@ class DocumentSyncListener(sublime_plugin.ViewEventListener, AbstractViewListene
         self._manager.register_listener_async(self)
         views = buf.views()
         if not isinstance(views, list):
-            debug("skipping clone checks for", self)
+            debug("skipping clone checks for" + str(self))
             return
         self_id = self.view.id()
         for view in views:
@@ -859,7 +859,7 @@ class DocumentSyncListener(sublime_plugin.ViewEventListener, AbstractViewListene
             listeners = list(sublime_plugin.view_event_listeners[view_id])
             for listener in listeners:
                 if isinstance(listener, DocumentSyncListener):
-                    debug("also registering", listener)
+                    debug("also registering" + str(listener))
                     listener.on_load_async()
 
     def _update_stored_region_async(self) -> Tuple[bool, sublime.Region]:

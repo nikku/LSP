@@ -49,7 +49,7 @@ def _preprocess_properties(translations: Optional[Dict[str, str]], properties: D
     """
     non_dict_keys = [k for k, v in properties.items() if not isinstance(v, dict)]
     for k in non_dict_keys:
-        debug("discarding key:", k)
+        debug("discarding key: " + k)
         properties.pop(k)
     for v in properties.values():
         v.pop("scope", None)

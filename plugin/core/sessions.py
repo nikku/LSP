@@ -1695,7 +1695,7 @@ class Session(TransportCallbacks):
             capability_path, registration_path = method_to_capability(registration["method"])
             if self.config.is_disabled_capability(capability_path):
                 continue
-            debug("{}: registering capability:".format(self.config.name), capability_path)
+            debug("{}: registering capability: ".format(self.config.name) + capability_path)
             options = registration.get("registerOptions")  # type: Optional[Dict[str, Any]]
             if not isinstance(options, dict):
                 options = {}
@@ -1736,7 +1736,7 @@ class Session(TransportCallbacks):
         for unregistration in unregistrations:
             registration_id = unregistration["id"]
             capability_path, registration_path = method_to_capability(unregistration["method"])
-            debug("{}: unregistering capability:".format(self.config.name), capability_path)
+            debug("{}: unregistering capability: ".format(self.config.name) + capability_path)
             data = self._registrations.pop(registration_id, None)
             if self._watcher_impl and capability_path == "workspace.didChangeWatchedFiles":
                 file_watchers = self._dynamic_file_watchers.pop(registration_id, None)
@@ -1965,7 +1965,7 @@ class Session(TransportCallbacks):
                 self._plugin.on_server_response_async(method, response)  # type: ignore
             return handler, response.result, None, None, None
         else:
-            debug("Unknown payload type: ", payload)
+            debug("Unknown payload type: " + sublime.encode_value(payload))
         return (None, None, None, None, None)
 
     def on_payload(self, payload: Dict[str, Any]) -> None:

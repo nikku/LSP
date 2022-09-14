@@ -63,7 +63,7 @@ class WindowConfigManager(object):
                 continue
             overrides = project_settings.pop(name, None)
             if isinstance(overrides, dict):
-                debug("applying .sublime-project override for", name)
+                debug("applying .sublime-project override for {}".format(name))
             else:
                 overrides = {}
             if name in self._disabled_for_session:
@@ -72,7 +72,7 @@ class WindowConfigManager(object):
         for name, c in project_settings.items():
             if updated_config_name and updated_config_name != name:
                 continue
-            debug("loading project-only configuration", name)
+            debug("loading project-only configuration {}".format(name))
             try:
                 self.all[name] = ClientConfig.from_dict(name, c)
             except Exception as ex:

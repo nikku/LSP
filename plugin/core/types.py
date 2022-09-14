@@ -44,7 +44,7 @@ def basescope2languageid(base_scope: str) -> str:
 def runtime(token: str) -> Generator[None, None, None]:
     t = time.time()
     yield
-    debug(token, "running time:", int((time.time() - t) * 1000000), "μs")
+    debug(token + " running time: " + str(int((time.time() - t) * 1000000)) + "μs")
 
 
 T = TypeVar("T")
@@ -517,7 +517,7 @@ class Capabilities(DottedDict):
     ) -> Optional[Dict[str, Any]]:
         stored_registration_id = self.get(registration_path)
         if not isinstance(stored_registration_id, str):
-            debug("stored registration ID at", registration_path, "is not a string")
+            debug("stored registration ID at " + registration_path + " is not a string")
             return None
         elif stored_registration_id != registration_id:
             msg = "stored registration ID ({}) is not the same as the provided registration ID ({})"

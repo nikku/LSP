@@ -1,5 +1,6 @@
 from .typing import Dict, Optional, List, Generator, Tuple
 from contextlib import contextmanager
+from .logging import get_log_debug, set_debug_logging
 import sublime
 import sublime_plugin
 
@@ -150,6 +151,14 @@ class LspToggleLogPanelLinesLimitCommand(sublime_plugin.TextCommand):
 
     def is_checked(self) -> bool:
         return self.is_limit_enabled(self.view.window())
+
+
+class LspToggleLogDebugCommand(sublime_plugin.TextCommand):
+    def run(self, edit: sublime.Edit) -> None:
+        set_debug_logging(not get_log_debug())
+
+    def is_checked(self) -> bool:
+        return get_log_debug()
 
 
 class LspClearPanelCommand(sublime_plugin.TextCommand):

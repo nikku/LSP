@@ -9,6 +9,11 @@
         "checkbox": true
     },
     {
+        "caption": "Log debug",
+        "command": "lsp_toggle_log_debug",
+        "checkbox": true
+    },
+    {
         "caption": "-"
     },
     {

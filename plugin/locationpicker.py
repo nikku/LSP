@@ -145,4 +145,4 @@ class LocationPicker:
                 self._highlighted_view = view
         else:
             # TODO: Preview for other uri schemes?
-            debug("no preview for", uri)
+            debug("no preview for " + uri)

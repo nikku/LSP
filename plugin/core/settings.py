@@ -79,8 +79,8 @@ class ClientConfigs:
         self.all.clear()
         self.all.update({name: ClientConfig.from_dict(name, d) for name, d in clients.get().items()})
         self.all.update(self.external)
-        debug("enabled configs:", ", ".join(sorted(c.name for c in self.all.values() if c.enabled)))
-        debug("disabled configs:", ", ".join(sorted(c.name for c in self.all.values() if not c.enabled)))
+        debug("enabled configs:" + ", ".join(sorted(c.name for c in self.all.values() if c.enabled)))
+        debug("disabled configs:" + ", ".join(sorted(c.name for c in self.all.values() if not c.enabled)))
         self._notify_listener()
 
     def _set_enabled(self, config_name: str, is_enabled: bool) -> None:

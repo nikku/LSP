@@ -12,10 +12,15 @@ def set_debug_logging(logging_enabled: bool) -> None:
     log_debug = logging_enabled
 
 
-def debug(*args: Any) -> None:
+def get_log_debug() -> bool:
+    global log_debug
+    return log_debug
+
+
+def debug(message: str) -> None:
     """Print args to the console if the "debug" setting is True."""
     if log_debug:
-        printf(*args)
+        printf(message)
 
 
 def trace() -> None:
@@ -35,6 +40,7 @@ def exception_log(message: str, ex: Exception) -> None:
     print(''.join(traceback.format_exception(ex.__class__, ex, ex_traceback)))
 
 
-def printf(*args: Any, prefix: str = 'LSP') -> None:
+def printf(message: str, prefix: str = 'LSP') -> None:
+    from .panels import log_server_message
     """Print args to the console, prefixed by the plugin name."""
-    print(prefix + ":", *args)
+    log_server_message(sublime.active_window(), prefix + ":", message=message)

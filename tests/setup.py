@@ -228,7 +228,7 @@ class TextDocumentTestCase(DeferrableTestCase):
             promise.fulfill(params)
 
         def error_handler(params: Any) -> None:
-            debug("Got error:", params, "awaiting timeout :(")
+            debug("Got error: {} awaiting timeout :(".format(params))
 
         payload = [{"method": method, "response": responses} for method, responses in responses]
         self.session.send_request(Request("$test/setResponses", payload), handler, error_handler)
@@ -243,7 +243,7 @@ class TextDocumentTestCase(DeferrableTestCase):
             promise.fulfill(params)
 
         def error_handler(params: Any) -> None:
-            debug("Got error:", params, "awaiting timeout :(")
+            debug("Got error: {} awaiting timeout :(".format(params))
 
         req = Request("$test/sendNotification", {"method": method, "params": params})
         self.session.send_request(req, handler, error_handler)
