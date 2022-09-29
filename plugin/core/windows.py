@@ -34,7 +34,7 @@ from .workspace import sorted_workspace_folders
 from collections import deque
 from collections import OrderedDict
 from subprocess import CalledProcessError
-from time import time
+from time import time, strftime
 from weakref import ref
 from weakref import WeakSet
 import functools
@@ -501,11 +501,46 @@ class WindowRegistry(object):
         self._windows.pop(window.id(), None)
 
 
+class TrackTime:
+    def __init__(self, start: Optional[int] = None, end: Optional[int] = None) -> None:
+        self.start = start
+        self.end = end
+
+    def duration(self) -> int:
+        if not self.start and not self.end:
+            return 0
+        return self.end - self.start
+
+
+class RequestTimeTracker:
+    def __init__(self) -> None:
+        self._request_duration = {}  # type: Dict[int, TrackTime]
+
+    def start_tracking(self, request_id: int) -> None:
+        self._request_duration[request_id] = TrackTime(start=time())
+
+    def end_tracking(self, request_id) -> None:
+        track_time = self._request_duration[request_id]
+        if track_time:
+            track_time.end = time()
+
+    def duration_in_ms(self, request_id: int) -> int:
+        duration_in_ms = 0
+        track_time = self._request_duration[request_id]
+        if track_time:
+            duration_in_ms = track_time.duration()
+        return int(duration_in_ms * 1000)
+
+    def clear(self, request_id: int) -> None:
+        self._request_duration.pop(request_id, None)
+
+
 class PanelLogger(Logger):
 
     def __init__(self, manager: WindowManager, server_name: str) -> None:
         self._manager = ref(manager)
         self._server_name = server_name
+        self.request_time_tracker = RequestTimeTracker()
 
     def stderr_message(self, message: str) -> None:
         """
@@ -529,16 +564,21 @@ class PanelLogger(Logger):
         sublime.set_timeout_async(run_on_async_worker_thread)
 
     def outgoing_response(self, request_id: Any, params: Any) -> None:
+        self.request_time_tracker.end_tracking(request_id)
         if not userprefs().log_server:
             return
         self.log(self._format_response(">>>", request_id), params)
+        self.request_time_tracker.clear(request_id)
 
     def outgoing_error_response(self, request_id: Any, error: Error) -> None:
+        self.request_time_tracker.end_tracking(request_id)
         if not userprefs().log_server:
             return
         self.log(self._format_response("~~>", request_id), error.to_lsp())
+        self.request_time_tracker.clear(request_id)
 
     def outgoing_request(self, request_id: int, method: str, params: Any) -> None:
+        self.request_time_tracker.start_tracking(request_id)
         if not userprefs().log_server:
             return
         self.log(self._format_request("-->", method, request_id), params)
@@ -549,12 +589,15 @@ class PanelLogger(Logger):
         self.log(self._format_notification(" ->", method), params)
 
     def incoming_response(self, request_id: int, params: Any, is_error: bool) -> None:
+        self.request_time_tracker.end_tracking(request_id)
         if not userprefs().log_server:
             return
         direction = "<~~" if is_error else "<<<"
         self.log(self._format_response(direction, request_id), params)
+        self.request_time_tracker.clear(request_id)
 
     def incoming_request(self, request_id: Any, method: str, params: Any) -> None:
+        self.request_time_tracker.start_tracking(request_id)
         if not userprefs().log_server:
             return
         self.log(self._format_request("<--", method, request_id), params)
@@ -566,13 +609,14 @@ class PanelLogger(Logger):
         self.log(self._format_notification(direction, method), params)
 
     def _format_response(self, direction: str, request_id: Any) -> str:
-        return "{} {} {}".format(direction, self._server_name, request_id)
+        duration_in_ms = self.request_time_tracker.duration_in_ms(request_id)
+        return "{} {} ({} | {} - {}ms)".format(direction, self._server_name, request_id, strftime("%H:%M:%S"), duration_in_ms)
 
     def _format_request(self, direction: str, method: str, request_id: Any) -> str:
-        return "{} {} {}({})".format(direction, self._server_name, method, request_id)
+        return "{} {} {} ({} | {})".format(direction, self._server_name, method, request_id, strftime("%H:%M:%S"))
 
     def _format_notification(self, direction: str, method: str) -> str:
-        return "{} {} {}".format(direction, self._server_name, method)
+        return "{} {} {} ({})".format(direction, self._server_name, method, strftime("%H:%M:%S"))
 
 
 class RemoteLogger(Logger):
