@@ -506,11 +506,6 @@ class TrackTime:
         self.start = start
         self.end = end
 
-    def duration(self) -> int:
-        if not self.start and not self.end:
-            return 0
-        return self.end - self.start
-
 
 class RequestTimeTracker:
     def __init__(self) -> None:
@@ -525,11 +520,11 @@ class RequestTimeTracker:
             track_time.end = time()
 
     def duration_in_ms(self, request_id: int) -> int:
-        duration_in_ms = 0
+        duration = 0
         track_time = self._request_duration[request_id]
-        if track_time:
-            duration_in_ms = track_time.duration()
-        return int(duration_in_ms * 1000)
+        if track_time.start and track_time.end:
+            duration = track_time.end - track_time.start
+        return int(duration * 1000)
 
     def clear(self, request_id: int) -> None:
         self._request_duration.pop(request_id, None)
